@@ -79,17 +79,18 @@
 
 
 
-<meta name="description" content="技术道路，勇于向前">
+<meta name="description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
 <meta name="keywords" content="Android">
-<meta property="og:type" content="website">
-<meta property="og:title" content="LiuTao">
-<meta property="og:url" content="https://lt19931203.github.io/index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Glide">
+<meta property="og:url" content="https://lt19931203.github.io/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/index.html">
 <meta property="og:site_name" content="LiuTao">
-<meta property="og:description" content="技术道路，勇于向前">
+<meta property="og:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-21T12:51:38.987Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LiuTao">
-<meta name="twitter:description" content="技术道路，勇于向前">
+<meta name="twitter:title" content="Glide">
+<meta name="twitter:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
 
 
 
@@ -119,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://lt19931203.github.io/">
+  <link rel="canonical" href="https://lt19931203.github.io/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/">
 
 
 
 
 
-  <title>LiuTao</title>
+  <title>Glide | LiuTao</title>
   
 
 
@@ -144,8 +145,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -218,9 +218,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -250,9 +250,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/" itemprop="url">Glide</a></h1>
+          <h1 class="post-title" itemprop="name headline">Glide</h1>
         
 
         <div class="post-meta">
@@ -295,6 +293,11 @@
           
 
           
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
 
           
             <div class="post-wordcount">
@@ -332,9 +335,7 @@
       
 
       
-        
-          
-            <h1 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h1><ol>
+        <h1 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h1><ol>
 <li>本篇文章聊的是<code>Glide</code>的缓存策略，首先需要对加载流程有一定的了解，如果还没看过<code>Glide</code>加载流程的，建议先看完我的上一篇文章。</li>
 <li>这篇文章还是关于源码的文章，但同样不会涉及到<code>Glide</code>的使用方法</li>
 <li>与上篇文章一样，同样基于<code>Glide:4.8.0</code></li>
@@ -467,8 +468,6 @@
 </ol>
 <p>第二个参数变成了DataSource.LOCAL，从而满足了步骤19的条件，进而进行ResourceCache的缓存</p>
 
-          
-        
       
     </div>
     
@@ -485,173 +484,40 @@
       
 
       
-
       
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://lt19931203.github.io/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="lt19931203">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LiuTao">
-    </span>
-
-    
-      <header class="post-header">
-
+        <div class="post-widgets">
         
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" itemprop="url">基于Glide4.8源码的首次加载流程</a></h1>
+          <div class="wp_rating">
+            <div id="wpac-rating"></div>
+          </div>
         
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-11T10:32:58+08:00">
-                2019-02-11
-              </time>
-            
+        
 
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" class="leancloud_visitors" data-flag-title="基于Glide4.8源码的首次加载流程">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  17.3k
-                </span>
-              
-
-              
-
-              
-            </div>
-          
-
-          
-
+        
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
       
       
 
       
-        
-          <h1 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h1><ol>
-<li>本文章不介绍Glide的使用方法，如标题所示，只对Glide首次加载流程进行分析，不包含缓存原理分析</li>
-<li>只对<code>Glide.with(context).load(url).into(imageView);</code>进行分析。</li>
-<li>文章会使用步骤来说明，但是经常有步骤之间的跳转，所以必要的同学可以打开两个页面，一个专门用来顺序查看，一个用来跳转步骤查看</li>
-<li>写这篇文章的时候，最新版本就是Glide4.8.0，想看源码的同学，直接在项目中<code>implementation &#39;com.github.bumptech.glide:glide:4.8.0&#39;</code>如果依赖最新的代码，可能会不同步</li>
-<li>本人原创，转载请注明原地址</li>
-</ol>
-<h1 id="Glide-with"><a href="#Glide-with" class="headerlink" title="Glide.with()"></a>Glide.with()</h1>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" rel="contents">
-              阅读全文 &raquo;
-            </a>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" rel="next" title="基于Glide4.8源码的首次加载流程">
+                <i class="fa fa-chevron-left"></i> 基于Glide4.8源码的首次加载流程
+              </a>
+            
           </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
 
-    
+          <span class="post-nav-divider"></span>
 
-    
-
-    
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -661,10 +527,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -672,6 +539,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -692,8 +563,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -744,6 +624,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#序言"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存缓存"><span class="nav-number">3.</span> <span class="nav-text">内存缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤1：Engine-load"><span class="nav-number">3.1.</span> <span class="nav-text">步骤1：Engine#load()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤2：Engine-loadFromActiveResources"><span class="nav-number">3.2.</span> <span class="nav-text">步骤2：Engine#loadFromActiveResources()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤3：SingleRequest-onResourceReady"><span class="nav-number">3.3.</span> <span class="nav-text">步骤3：SingleRequest#onResourceReady()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤4：ActiveResources缓存的来源"><span class="nav-number">3.4.</span> <span class="nav-text">步骤4：ActiveResources缓存的来源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤5：Engine-onEngineJobComplete"><span class="nav-number">3.5.</span> <span class="nav-text">步骤5：Engine#onEngineJobComplete()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤6：Engine-loadFromCache"><span class="nav-number">3.6.</span> <span class="nav-text">步骤6：Engine#loadFromCache()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤7：LruResourceCache-remove"><span class="nav-number">3.7.</span> <span class="nav-text">步骤7：LruResourceCache#remove()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤8：LruResourceCache与ActiveResources的关系"><span class="nav-number">3.8.</span> <span class="nav-text">步骤8：LruResourceCache与ActiveResources的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤9：内存缓存小结"><span class="nav-number">3.9.</span> <span class="nav-text">步骤9：内存缓存小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#磁盘缓存"><span class="nav-number">4.</span> <span class="nav-text">磁盘缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤10：DecodeJob-run"><span class="nav-number">4.1.</span> <span class="nav-text">步骤10：DecodeJob#run()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤11：ResourceCacheGenerator-startNext"><span class="nav-number">4.2.</span> <span class="nav-text">步骤11：ResourceCacheGenerator#startNext()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤12：DiskLruCacheWrapper-get"><span class="nav-number">4.3.</span> <span class="nav-text">步骤12：DiskLruCacheWrapper#get()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤13：DataCacheGenerator-startNext"><span class="nav-number">4.4.</span> <span class="nav-text">步骤13：DataCacheGenerator#startNext()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤14：DiskLruCacheWrapper-put"><span class="nav-number">4.5.</span> <span class="nav-text">步骤14：DiskLruCacheWrapper#put()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤15：SourceGenerator-cacheData"><span class="nav-number">4.6.</span> <span class="nav-text">步骤15：SourceGenerator#cacheData()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤16：DecodeJob-DeferredEncodeManager-encode"><span class="nav-number">4.7.</span> <span class="nav-text">步骤16：DecodeJob$DeferredEncodeManager#encode()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤17：DecodeJob-notifyEncodeAndRelease"><span class="nav-number">4.8.</span> <span class="nav-text">步骤17：DecodeJob#notifyEncodeAndRelease()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤18：DecodeJob-onResourceDecoded"><span class="nav-number">4.9.</span> <span class="nav-text">步骤18：DecodeJob#onResourceDecoded()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤19：AUTOMATIC-isResourceCacheable"><span class="nav-number">4.10.</span> <span class="nav-text">步骤19：AUTOMATIC#isResourceCacheable()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤20：DecodeJob-onDataFetcherReady"><span class="nav-number">4.11.</span> <span class="nav-text">步骤20：DecodeJob#onDataFetcherReady()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤21：AUTOMATIC缓存机制"><span class="nav-number">4.12.</span> <span class="nav-text">步骤21：AUTOMATIC缓存机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步骤22：加载本地图片"><span class="nav-number">4.13.</span> <span class="nav-text">步骤22：加载本地图片</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -906,6 +802,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -1068,6 +968,23 @@
 
   
   
+  <script type="text/javascript">
+  wpac_init = window.wpac_init || [];
+  wpac_init.push({widget: 'Rating', id: ,
+    el: 'wpac-rating',
+    color: 'fc6423'
+  });
+  (function() {
+    if ('WIDGETPACK_LOADED' in window) return;
+    WIDGETPACK_LOADED = true;
+    var mc = document.createElement('script');
+    mc.type = 'text/javascript';
+    mc.async = true;
+    mc.src = '//embed.widgetpack.com/widget.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+  })();
+  </script>
+
 
   
 
