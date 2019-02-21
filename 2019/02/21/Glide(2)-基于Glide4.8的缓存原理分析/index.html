@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="LT,LiuTao,Android,博客">
+  <meta name="keywords" content="Glide,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
-<meta name="keywords" content="Android">
+<meta name="description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。  这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法  与上篇文章一样，同样基于Glide:4.8.0  只对最基本的Glide.with().load().into()进行分析">
+<meta name="keywords" content="Glide">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Glide">
+<meta property="og:title" content="Glide(2)-基于Glide4.8的缓存原理分析">
 <meta property="og:url" content="https://lt19931203.github.io/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/index.html">
 <meta property="og:site_name" content="LiuTao">
-<meta property="og:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
+<meta property="og:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。  这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法  与上篇文章一样，同样基于Glide:4.8.0  只对最基本的Glide.with().load().into()进行分析">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-21T12:51:38.987Z">
+<meta property="og:updated_time" content="2019-02-21T12:58:53.570Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Glide">
-<meta name="twitter:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。 这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法 与上篇文章一样，同样基于Glide:4.8.0 只对最基本的Glide.with().load().into()进行分析  简介所有用过Glide的朋友都知道，Glide缓存嘛，无非就是分为两部分，">
+<meta name="twitter:title" content="Glide(2)-基于Glide4.8的缓存原理分析">
+<meta name="twitter:description" content="序言 本篇文章聊的是Glide的缓存策略，首先需要对加载流程有一定的了解，如果还没看过Glide加载流程的，建议先看完我的上一篇文章。  这篇文章还是关于源码的文章，但同样不会涉及到Glide的使用方法  与上篇文章一样，同样基于Glide:4.8.0  只对最基本的Glide.with().load().into()进行分析">
 
 
 
@@ -126,7 +126,7 @@
 
 
 
-  <title>Glide | LiuTao</title>
+  <title>Glide(2)-基于Glide4.8的缓存原理分析 | LiuTao</title>
   
 
 
@@ -250,7 +250,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Glide</h1>
+          <h1 class="post-title" itemprop="name headline">Glide(2)-基于Glide4.8的缓存原理分析</h1>
         
 
         <div class="post-meta">
@@ -280,7 +280,7 @@
 
           
           
-             <span id="/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/" class="leancloud_visitors" data-flag-title="Glide">
+             <span id="/2019/02/21/Glide(2)-基于Glide4.8的缓存原理分析/" class="leancloud_visitors" data-flag-title="Glide(2)-基于Glide4.8的缓存原理分析">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -336,10 +336,15 @@
 
       
         <h1 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h1><ol>
-<li>本篇文章聊的是<code>Glide</code>的缓存策略，首先需要对加载流程有一定的了解，如果还没看过<code>Glide</code>加载流程的，建议先看完我的上一篇文章。</li>
-<li>这篇文章还是关于源码的文章，但同样不会涉及到<code>Glide</code>的使用方法</li>
-<li>与上篇文章一样，同样基于<code>Glide:4.8.0</code></li>
-<li>只对最基本的<code>Glide.with().load().into()</code>进行分析</li>
+<li><p>本篇文章聊的是<code>Glide</code>的缓存策略，首先需要对加载流程有一定的了解，如果还没看过<code>Glide</code>加载流程的，建议先看完我的上一篇文章。</p>
+</li>
+<li><p>这篇文章还是关于源码的文章，但同样不会涉及到<code>Glide</code>的使用方法</p>
+</li>
+<li><p>与上篇文章一样，同样基于<code>Glide:4.8.0</code></p>
+</li>
+<li><p>只对最基本的<code>Glide.with().load().into()</code>进行分析</p>
+<a id="more"></a>
+</li>
 </ol>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>所有用过<code>Glide</code>的朋友都知道，<code>Glide</code>缓存嘛，无非就是分为两部分，内存和磁盘。通过一些API跳过内存缓存，或者改变磁盘缓存的策略，都是老生常谈的东西了，网上的文章也是数不胜数，不过我个人还是喜欢按步骤来拆分源码的。话不多说，直接来看代码。</p>
 <h1 id="内存缓存"><a href="#内存缓存" class="headerlink" title="内存缓存"></a>内存缓存</h1><p><strong>Glide的内存缓存不止一层，而是两层，分别是ActiveResources（表示当前内存中正在使用的，优先级高）和LruCache（最近最少使用算法，优先级低于ActiveResources）</strong>，如果有对<code>LruCache</code>算法不了解的，可以在网上搜索了解一下，这里就不介绍了。在上一篇文章中说到了<code>Glide</code>首次加载流程，其中<code>Glide.with().load()</code>这两步都没有做太多的事情，大部分的逻辑都是在<code>into()</code>方法中完成的，我们还认识了一些类，包括他们的方法，做了哪些事…，这篇文章不从头来了，直接从<code>Engine#load()</code>方法开始。因为在<code>Engine#load()</code>之前做的事情，都和缓存关系不大。如果有小伙伴对于<code>Engine#load()</code>来源不清楚的，建议还是先看首次加载流程吧。</p>
@@ -482,6 +487,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/Glide/" rel="tag"># Glide</a>
+          
+        </div>
+      
 
       
       
@@ -503,8 +514,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" rel="next" title="基于Glide4.8源码的首次加载流程">
-                <i class="fa fa-chevron-left"></i> 基于Glide4.8源码的首次加载流程
+              <a href="/2019/02/11/Glide(1)-基于Glide4.8源码的首次加载流程/" rel="next" title="Glide(1)-基于Glide4.8源码的首次加载流程">
+                <i class="fa fa-chevron-left"></i> Glide(1)-基于Glide4.8源码的首次加载流程
               </a>
             
           </div>
